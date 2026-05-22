@@ -1,0 +1,10 @@
+html, body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #101418 0%, #161b22 100%);
+  color: #eef2f7;
+}
+
+* {
+  box-sizing: border-box;
+}
