@@ -42,7 +42,8 @@ Kako da testiraš 6 i 7:
 
 ```powershell
 cd "c:\Users\tijan\OneDrive\Radna površina\ProjectUES\backend"
-mvn spring-boot:run
+mvn -q -DskipTests package
+java -jar target\projectues-backend-0.0.1-SNAPSHOT.jar
 ```
 
 2. Pokreni frontend.

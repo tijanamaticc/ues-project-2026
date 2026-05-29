@@ -60,18 +60,30 @@ public class AuthService {
     public User approveRequest(Long requestId) {
         RegistrationRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Zahtev ne postoji"));
-        request.setStatus(RequestStatus.APPROVED);
-        requestRepository.save(request);
+        // prevent creating duplicate users
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Korisnik sa tim emailom već postoji");
+        }
+
+        // Ensure password is encoded before saving to User. The stored request password
+        // may be either raw or already encoded; detect bcrypt prefix to decide.
+        String pwd = request.getPassword();
+        boolean looksEncoded = pwd != null && pwd.startsWith("$2");
 
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(looksEncoded ? pwd : passwordEncoder.encode(pwd));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setAddress(request.getAddress());
         user.setCity(request.getCity());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setRole(Role.USER);
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+
+        request.setStatus(RequestStatus.APPROVED);
+        requestRepository.save(request);
+
+        return saved;
     }
 }

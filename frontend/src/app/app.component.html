@@ -22,35 +22,6 @@
   </header>
 
   <section *ngIf="!app.isAuthenticated; else dashboard" class="landing-grid">
-    <article class="hero-card card card-wide">
-      <p class="section-label">Inspirisano aplikacijom new-now.rs</p>
-      <h2>Jedan pregledan ulaz, a ne sve na jednoj strani.</h2>
-      <p class="lead">
-        Korisnik prvo vidi šta aplikacija nudi, zatim se prijavljuje ili registruje, pa ulazi u poseban meni za pregled mesta,
-        ocene i administraciju. To je osnova koju si tražila za 6 i 7, sa UES delom kao fokusom.
-      </p>
-
-      <div class="hero-metrics">
-        <div>
-          <strong>{{ app.places.length }}</strong>
-          <span>mesta u sistemu</span>
-        </div>
-        <div>
-          <strong>{{ app.visibleReviewCount }}</strong>
-          <span>utisaka i komentara</span>
-        </div>
-        <div>
-          <strong>2</strong>
-          <span>glavna toka: korisnik i admin</span>
-        </div>
-      </div>
-
-      <div class="hero-actions">
-        <button class="primary-button" (click)="app.setAuthMode('register')">Kreni sa registracijom</button>
-        <button class="ghost-button" (click)="scrollToPreview()">Pogledaj javni pregled</button>
-      </div>
-    </article>
-
     <article class="card auth-card">
       <div class="auth-tabs">
         <button [class.active]="app.authMode === 'login'" (click)="app.setAuthMode('login')">Prijava</button>
@@ -102,55 +73,7 @@
       </div>
     </article>
 
-    <article class="card preview-card" id="preview">
-      <div class="section-head">
-        <div>
-          <p class="section-label">Javni pregled</p>
-          <h3>Šta korisnik vidi pre prijave</h3>
-        </div>
-        <button class="ghost-button" (click)="app.loadPlaces()">Osveži</button>
-      </div>
-
-      <div class="preview-list" *ngIf="app.places.length; else noPreview">
-        <div class="preview-place" *ngFor="let place of app.previewPlaces">
-          <div class="preview-image" [style.backgroundImage]="place.imageUrl ? 'url(' + place.imageUrl + ')' : ''">
-            <span>{{ place.type || 'mesto' }}</span>
-          </div>
-          <div class="preview-copy">
-            <h4>{{ place.name }}</h4>
-            <p>{{ place.address }}</p>
-            <small>{{ place.reviewCount || 0 }} utisaka · {{ app.formatRating(place.averageRating) }}</small>
-          </div>
-        </div>
-      </div>
-
-      <ng-template #noPreview>
-        <p class="muted">Nema podataka za prikaz.</p>
-      </ng-template>
-    </article>
-
-    <article class="card info-card">
-      <p class="section-label">Plan rada</p>
-      <h3>Osnova koja vodi ka UES delu</h3>
-      <div class="feature-stack">
-        <div>
-          <strong>1. Autentifikacija</strong>
-          <p>Prijava i registracija sa odobrenjem admina.</p>
-        </div>
-        <div>
-          <strong>2. Navigacija</strong>
-          <p>Poseban meni nakon prijave, bez sveg sadržaja na jednoj strani.</p>
-        </div>
-        <div>
-          <strong>3. Sadržaj</strong>
-          <p>Pregled mesta, pretraga, slike i utisci korisnika.</p>
-        </div>
-        <div>
-          <strong>4. Admin tok</strong>
-          <p>Odobravanje zahteva i unos novih mesta ostaju pod kontrolom administratora.</p>
-        </div>
-      </div>
-    </article>
+    <!-- Landing simplified: only auth UI shown before login to match spec for grades 6 & 7 -->
   </section>
 
   <ng-template #dashboard>
@@ -236,12 +159,15 @@
             </div>
             <div class="two-cols">
               <input [(ngModel)]="app.newPlace.type" placeholder="Tip" />
-              <input [(ngModel)]="app.newPlace.imageUrl" placeholder="URL slike" />
+              <input [(ngModel)]="app.newPlace.imageUrl" placeholder="URL slike" [disabled]="app.uploadFile" />
             </div>
             <textarea [(ngModel)]="app.newPlace.description" placeholder="Opis"></textarea>
             <div class="upload-row">
-              <input type="file" (change)="app.onFile($event)" />
-              <button class="ghost-button" (click)="app.createPlace()">Dodaj mesto</button>
+              <input type="file" id="fileInput" style="display:none" (change)="app.onFile($event)" />
+              <button class="ghost-button" (click)="document.getElementById('fileInput')?.click()">Izaberi fajl</button>
+              <span class="file-name" *ngIf="app.uploadFile">{{ app.uploadFile.name }}</span>
+              <button *ngIf="app.uploadFile" class="ghost-button" (click)="app.uploadFile = null">Ukloni</button>
+              <button class="primary-button" (click)="app.createPlace()">Dodaj mesto</button>
             </div>
           </div>
 
