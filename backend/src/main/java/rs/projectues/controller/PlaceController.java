@@ -20,10 +20,7 @@ public class PlaceController {
 
     @GetMapping
     public List<Place> list(@RequestParam(required = false) String query) {
-        List<Place> places = placeService.findAll(query);
-        // Attach reviews for each place
-        // Lazy: load reviews via repository
-        return places;
+        return placeService.findAll(query);
     }
 
     @PostMapping

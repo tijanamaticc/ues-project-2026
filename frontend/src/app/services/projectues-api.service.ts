@@ -61,7 +61,7 @@ export class ProjectuesApiService {
       try {
         this.currentUser = { ...this.currentUser, ...JSON.parse(savedUser) };
       } catch {
-        this.currentUser.role = localStorage.getItem('authRole') || '';
+        this.currentUser.role = '';
       }
     }
 
@@ -121,7 +121,6 @@ export class ProjectuesApiService {
         this.isAuthenticated = true;
         this.isAdmin = this.currentUser.role === 'ADMIN';
         localStorage.setItem('authToken', this.authToken);
-        localStorage.setItem('authRole', this.currentUser.role);
         localStorage.setItem('authUser', JSON.stringify(this.currentUser));
         this.loginMessage = 'Prijava je uspešna.';
         this.currentView = this.isAdmin ? 'overview' : 'places';
@@ -241,7 +240,6 @@ export class ProjectuesApiService {
 
   logout(): void {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('authRole');
     localStorage.removeItem('authUser');
     this.authToken = '';
     this.isAuthenticated = false;
