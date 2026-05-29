@@ -33,7 +33,8 @@ public class AuthService {
         RegistrationRequest registrationRequest = new RegistrationRequest();
         registrationRequest.setEmail(request.getEmail());
         registrationRequest.setPassword(passwordEncoder.encode(request.getPassword()));
-        registrationRequest.setName(request.getName());
+        registrationRequest.setFirstName(request.getFirstName());
+        registrationRequest.setLastName(request.getLastName());
         registrationRequest.setAddress(request.getAddress());
         registrationRequest.setCity(request.getCity());
         registrationRequest.setPhoneNumber(request.getPhoneNumber());
@@ -52,7 +53,7 @@ public class AuthService {
         response.put("token", token);
         response.put("role", user.getRole());
         response.put("email", user.getEmail());
-        response.put("name", user.getName());
+        response.put("name", (user.getFirstName() == null ? "" : user.getFirstName()) + " " + (user.getLastName() == null ? "" : user.getLastName()));
         return response;
     }
 
@@ -65,7 +66,8 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
-        user.setName(request.getName());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setAddress(request.getAddress());
         user.setCity(request.getCity());
         user.setPhoneNumber(request.getPhoneNumber());

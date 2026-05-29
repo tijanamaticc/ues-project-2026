@@ -19,7 +19,8 @@ public class DataInitializer {
                 User admin = new User();
                 admin.setEmail("admin@projectues.rs");
                 admin.setPassword(passwordEncoder.encode("admin123"));
-                admin.setName("Administrator");
+                admin.setFirstName("Administrator");
+                admin.setLastName("");
                 admin.setRole(Role.ADMIN);
                 userRepository.save(admin);
             }

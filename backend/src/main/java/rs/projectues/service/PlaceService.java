@@ -32,6 +32,7 @@ public class PlaceService {
         place.setAddress(request.getAddress());
         place.setType(request.getType());
         place.setDescription(request.getDescription());
+        // imageUrl may be a public path returned by upload endpoint
         place.setImageUrl(request.getImageUrl());
         return placeRepository.save(place);
     }

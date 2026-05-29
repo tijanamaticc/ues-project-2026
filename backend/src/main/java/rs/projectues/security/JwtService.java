@@ -1,5 +1,6 @@
 package rs.projectues.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,8 @@ public class JwtService {
     private final SecretKey secretKey;
 
     public JwtService(@Value("${app.jwt.secret:change-this-secret-change-this-secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(Long userId, String email, Role role) {
@@ -26,11 +28,19 @@ public class JwtService {
                 .claim("role", role.name())
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + 7L * 24 * 60 * 60 * 1000))
-                .signWith(secretKey, Jwts.SIG.HS256)
+                .signWith(secretKey)
                 .compact();
     }
 
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+    }
+
     public String getEmail(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getSubject();
+        return parseClaims(token).getSubject();
     }
 }
