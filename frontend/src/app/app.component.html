@@ -1,0 +1,401 @@
+<div class="page-shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Projekt UES 2026</p>
+      <h1>Nova platforma za Novi Sad</h1>
+    </div>
+
+    <div class="topbar-actions" *ngIf="!app.isAuthenticated; else userMenu">
+      <button class="ghost-button" (click)="app.setAuthMode('login')">Prijava</button>
+      <button class="primary-button" (click)="app.setAuthMode('register')">Registracija</button>
+    </div>
+
+    <ng-template #userMenu>
+      <div class="user-chip">
+        <span class="user-dot"></span>
+        <div>
+          <strong>{{ app.currentUser.name || app.currentUser.email }}</strong>
+          <span>{{ app.currentUser.role }}</span>
+        </div>
+      </div>
+    </ng-template>
+  </header>
+
+  <section *ngIf="!app.isAuthenticated; else dashboard" class="landing-grid">
+    <article class="hero-card card card-wide">
+      <p class="section-label">Inspirisano aplikacijom new-now.rs</p>
+      <h2>Jedan pregledan ulaz, a ne sve na jednoj strani.</h2>
+      <p class="lead">
+        Korisnik prvo vidi šta aplikacija nudi, zatim se prijavljuje ili registruje, pa ulazi u poseban meni za pregled mesta,
+        ocene i administraciju. To je osnova koju si tražila za 6 i 7, sa UES delom kao fokusom.
+      </p>
+
+      <div class="hero-metrics">
+        <div>
+          <strong>{{ app.places.length }}</strong>
+          <span>mesta u sistemu</span>
+        </div>
+        <div>
+          <strong>{{ app.visibleReviewCount }}</strong>
+          <span>utisaka i komentara</span>
+        </div>
+        <div>
+          <strong>2</strong>
+          <span>glavna toka: korisnik i admin</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="primary-button" (click)="app.setAuthMode('register')">Kreni sa registracijom</button>
+        <button class="ghost-button" (click)="scrollToPreview()">Pogledaj javni pregled</button>
+      </div>
+    </article>
+
+    <article class="card auth-card">
+      <div class="auth-tabs">
+        <button [class.active]="app.authMode === 'login'" (click)="app.setAuthMode('login')">Prijava</button>
+        <button [class.active]="app.authMode === 'register'" (click)="app.setAuthMode('register')">Registracija</button>
+      </div>
+
+      <div *ngIf="app.authMode === 'login'" class="auth-panel">
+        <h3>Prijava</h3>
+        <p class="muted">Ulaz za postojeće naloge i admin pristup.</p>
+        <label>Email</label>
+        <input [(ngModel)]="app.login.email" placeholder="ime@domen.rs" />
+        <label>Lozinka</label>
+        <input [(ngModel)]="app.login.password" type="password" placeholder="Lozinka" />
+        <button class="primary-button block" (click)="app.doLogin()">Prijavi se</button>
+        <p class="status" [class.error]="!!app.loginMessage">{{ app.loginMessage }}</p>
+      </div>
+
+      <div *ngIf="app.authMode === 'register'" class="auth-panel">
+        <h3>Registracija</h3>
+        <p class="muted">Zahtev ide administratoru na odobrenje.</p>
+        <label>Email</label>
+        <input [(ngModel)]="app.register.email" placeholder="ime@domen.rs" />
+        <label>Lozinka</label>
+        <input [(ngModel)]="app.register.password" type="password" placeholder="Lozinka" />
+        <div class="two-cols">
+          <div>
+            <label>Ime</label>
+            <input [(ngModel)]="app.register.firstName" placeholder="Ime" />
+          </div>
+          <div>
+            <label>Prezime</label>
+            <input [(ngModel)]="app.register.lastName" placeholder="Prezime" />
+          </div>
+        </div>
+        <div class="two-cols">
+          <div>
+            <label>Adresa</label>
+            <input [(ngModel)]="app.register.address" placeholder="Adresa" />
+          </div>
+          <div>
+            <label>Grad</label>
+            <input [(ngModel)]="app.register.city" placeholder="Grad" />
+          </div>
+        </div>
+        <label>Telefon</label>
+        <input [(ngModel)]="app.register.phoneNumber" placeholder="Telefon" />
+        <button class="primary-button block" (click)="app.doRegister()">Pošalji zahtev</button>
+        <p class="status" [class.error]="!!app.registerMessage">{{ app.registerMessage }}</p>
+      </div>
+    </article>
+
+    <article class="card preview-card" id="preview">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Javni pregled</p>
+          <h3>Šta korisnik vidi pre prijave</h3>
+        </div>
+        <button class="ghost-button" (click)="app.loadPlaces()">Osveži</button>
+      </div>
+
+      <div class="preview-list" *ngIf="app.places.length; else noPreview">
+        <div class="preview-place" *ngFor="let place of app.previewPlaces">
+          <div class="preview-image" [style.backgroundImage]="place.imageUrl ? 'url(' + place.imageUrl + ')' : ''">
+            <span>{{ place.type || 'mesto' }}</span>
+          </div>
+          <div class="preview-copy">
+            <h4>{{ place.name }}</h4>
+            <p>{{ place.address }}</p>
+            <small>{{ place.reviewCount || 0 }} utisaka · {{ app.formatRating(place.averageRating) }}</small>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noPreview>
+        <p class="muted">Nema podataka za prikaz.</p>
+      </ng-template>
+    </article>
+
+    <article class="card info-card">
+      <p class="section-label">Plan rada</p>
+      <h3>Osnova koja vodi ka UES delu</h3>
+      <div class="feature-stack">
+        <div>
+          <strong>1. Autentifikacija</strong>
+          <p>Prijava i registracija sa odobrenjem admina.</p>
+        </div>
+        <div>
+          <strong>2. Navigacija</strong>
+          <p>Poseban meni nakon prijave, bez sveg sadržaja na jednoj strani.</p>
+        </div>
+        <div>
+          <strong>3. Sadržaj</strong>
+          <p>Pregled mesta, pretraga, slike i utisci korisnika.</p>
+        </div>
+        <div>
+          <strong>4. Admin tok</strong>
+          <p>Odobravanje zahteva i unos novih mesta ostaju pod kontrolom administratora.</p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #dashboard>
+    <div class="dashboard-layout">
+      <aside class="sidebar card">
+        <div>
+          <p class="section-label">Korisnički meni</p>
+          <h3>{{ app.currentUser.name || app.currentUser.email }}</h3>
+          <p class="muted">{{ app.currentUser.role }}</p>
+        </div>
+
+        <nav class="side-nav">
+          <button [class.active]="app.currentView === 'overview'" (click)="app.selectView('overview')">Pregled</button>
+          <button [class.active]="app.currentView === 'places'" (click)="app.selectView('places')">Mesta</button>
+          <button [class.active]="app.currentView === 'ues'" (click)="app.selectView('ues')">UES deo</button>
+          <button *ngIf="app.isAdmin" [class.active]="app.currentView === 'admin'" (click)="app.selectView('admin')">Zahtevi</button>
+          <button [class.active]="app.currentView === 'profile'" (click)="app.selectView('profile')">Profil</button>
+        </nav>
+
+        <button class="ghost-button block" (click)="app.logout()">Odjavi se</button>
+      </aside>
+
+      <main class="content-grid">
+        <section *ngIf="app.currentView === 'overview'" class="card section-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Pregled sistema</p>
+              <h2>Kontrolna tabla</h2>
+            </div>
+            <button class="ghost-button" (click)="app.refreshAll()">Osveži sve</button>
+          </div>
+
+          <div class="stats-grid">
+            <article>
+              <strong>{{ app.places.length }}</strong>
+              <span>mesta</span>
+            </article>
+            <article>
+              <strong>{{ app.visibleReviewCount }}</strong>
+              <span>utisaka</span>
+            </article>
+            <article>
+              <strong>{{ app.requests.length }}</strong>
+              <span>pending zahteva</span>
+            </article>
+            <article>
+              <strong>{{ app.currentUser.role }}</strong>
+              <span>aktivna uloga</span>
+            </article>
+          </div>
+
+          <div class="overview-grid">
+            <div class="info-tile">
+              <p class="section-label">Kako radi</p>
+              <p>Javni deo ostaje pregledan, a nakon prijave korisnik dobija meni i jasno razdvojene sekcije.</p>
+            </div>
+            <div class="info-tile">
+              <p class="section-label">Za ocenu 6 i 7</p>
+              <p>Osnova je postavljena za prijavu, registraciju, admin odobravanje i pregled sadržaja.</p>
+            </div>
+          </div>
+        </section>
+
+        <section *ngIf="app.currentView === 'places'" class="card section-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Mesta</p>
+              <h2>Pregled, pretraga i komentari</h2>
+            </div>
+            <button class="ghost-button" (click)="app.loadPlaces()">Osveži</button>
+          </div>
+
+          <div class="search-row">
+            <input [(ngModel)]="app.query" placeholder="Pretraga po nazivu, adresi ili tipu" (keyup.enter)="app.loadPlaces()" />
+            <button class="primary-button" (click)="app.loadPlaces()">Traži</button>
+          </div>
+
+          <div class="place-form" *ngIf="app.isAdmin">
+            <h3>Dodavanje novog mesta</h3>
+            <div class="two-cols">
+              <input [(ngModel)]="app.newPlace.name" placeholder="Naziv" />
+              <input [(ngModel)]="app.newPlace.address" placeholder="Adresa" />
+            </div>
+            <div class="two-cols">
+              <input [(ngModel)]="app.newPlace.type" placeholder="Tip" />
+              <input [(ngModel)]="app.newPlace.imageUrl" placeholder="URL slike" />
+            </div>
+            <textarea [(ngModel)]="app.newPlace.description" placeholder="Opis"></textarea>
+            <div class="upload-row">
+              <input type="file" (change)="app.onFile($event)" />
+              <button class="ghost-button" (click)="app.createPlace()">Dodaj mesto</button>
+            </div>
+          </div>
+
+          <div class="places-grid" *ngIf="app.places.length; else emptyPlaces">
+            <article class="place-card" *ngFor="let place of app.places">
+              <div class="place-cover" [style.backgroundImage]="place.imageUrl ? 'url(' + place.imageUrl + ')' : ''">
+                <span>{{ place.type || 'Novi Sad' }}</span>
+              </div>
+
+              <div class="place-body">
+                <div class="place-head">
+                  <div>
+                    <h3>{{ place.name }}</h3>
+                    <p>{{ place.address }}</p>
+                  </div>
+                  <div class="rating-pill">{{ app.formatRating(place.averageRating) }}</div>
+                </div>
+
+                <p class="muted">{{ place.description || 'Nema dodatnog opisa za ovo mesto.' }}</p>
+
+                <div class="review-summary">
+                  <span>{{ place.reviewCount || 0 }} utisaka</span>
+                  <button class="ghost-button small" (click)="app.toggleReviews(place.id)">
+                    {{ app.expandedReviews[place.id] ? 'Sakrij' : 'Prikaži' }} utiske
+                  </button>
+                </div>
+
+                <div class="review-list" *ngIf="app.expandedReviews[place.id]">
+                  <article *ngFor="let review of place.reviews || []">
+                    <strong>{{ review.userEmail || 'korisnik' }}</strong>
+                    <span>{{ review.rating || 0 }}/10</span>
+                    <p>{{ review.text }}</p>
+                  </article>
+
+                  <div class="review-form" *ngIf="app.isAuthenticated">
+                    <h4>Dodaj utisak</h4>
+                    <textarea [(ngModel)]="app.newReviewText[place.id]" placeholder="Tvoj komentar"></textarea>
+                    <div class="review-actions">
+                      <input type="number" [(ngModel)]="app.newReviewRating[place.id]" min="1" max="10" placeholder="Ocena 1-10" />
+                      <button class="primary-button" (click)="app.addReview(place.id)">Pošalji</button>
+                    </div>
+                  </div>
+
+                  <p *ngIf="!app.isAuthenticated" class="muted">Prijavi se da bi ostavio utisak.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <ng-template #emptyPlaces>
+            <p class="muted">Nema unetih mesta.</p>
+          </ng-template>
+        </section>
+
+        <section *ngIf="app.currentView === 'ues'" class="card section-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">UES deo</p>
+              <h2>Osnova za predmetni fokus</h2>
+            </div>
+            <button class="ghost-button" (click)="app.refreshAll()">Osveži podatke</button>
+          </div>
+
+          <div class="ues-grid">
+            <article>
+              <h3>Prijava i registracija</h3>
+              <p>Korisnik kreira zahtev, admin ga odobrava, a tek tada dobija aktivan nalog.</p>
+            </article>
+            <article>
+              <h3>Meniji i navigacija</h3>
+              <p>Jasno odvojene sekcije smanjuju haos i prate uzor aplikacije na koju se pozivaš.</p>
+            </article>
+            <article>
+              <h3>Pregled sadržaja</h3>
+              <p>Pretraga mesta, slike, opis i komentari su u jednoj funkcionalnoj celini.</p>
+            </article>
+            <article>
+              <h3>Admin tok</h3>
+              <p>Odobravanje naloga i unos novih mesta ostaju pod kontrolom administratora.</p>
+            </article>
+          </div>
+
+          <div class="process-line">
+            <div>
+              <span>1</span>
+              <strong>Zahtev za nalog</strong>
+              <p>Registracija ide kroz čekanje odobrenja.</p>
+            </div>
+            <div>
+              <span>2</span>
+              <strong>Ulazak u meni</strong>
+              <p>Posle prijave korisnik dobija poseban dashboard.</p>
+            </div>
+            <div>
+              <span>3</span>
+              <strong>Rad sa mestima</strong>
+              <p>Pregled, pretraga i komentarisanje bez pretrpavanja.</p>
+            </div>
+          </div>
+        </section>
+
+        <section *ngIf="app.currentView === 'admin' && app.isAdmin" class="card section-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Admin zona</p>
+              <h2>Zahtevi za registraciju</h2>
+            </div>
+            <button class="ghost-button" (click)="app.loadRequests()">Osveži</button>
+          </div>
+
+          <div class="requests-list" *ngIf="app.requests.length; else noRequests">
+            <article class="request-card" *ngFor="let request of app.requests">
+              <div>
+                <h3>{{ request.email }}</h3>
+                <p>{{ request.firstName }} {{ request.lastName }}</p>
+                <small>{{ request.city }} · {{ request.address }}</small>
+              </div>
+              <button class="primary-button" (click)="app.approveRequest(request.id)">Odobri</button>
+            </article>
+          </div>
+
+          <ng-template #noRequests>
+            <p class="muted">Nema novih zahteva.</p>
+          </ng-template>
+        </section>
+
+        <section *ngIf="app.currentView === 'profile'" class="card section-card profile-card">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Profil</p>
+              <h2>Podaci o nalogu</h2>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <div>
+              <span>Email</span>
+              <strong>{{ app.currentUser.email }}</strong>
+            </div>
+            <div>
+              <span>Ime</span>
+              <strong>{{ app.currentUser.name || 'Nije definisano' }}</strong>
+            </div>
+            <div>
+              <span>Uloga</span>
+              <strong>{{ app.currentUser.role }}</strong>
+            </div>
+            <div>
+              <span>Status</span>
+              <strong>Aktivna sesija</strong>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </ng-template>
+</div>
