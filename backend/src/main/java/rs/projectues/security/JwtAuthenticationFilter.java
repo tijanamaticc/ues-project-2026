@@ -33,8 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (auth != null && auth.startsWith("Bearer ")) {
             String token = auth.substring(7);
             try {
-                String email = jwtService.getEmail(token);
-                Optional<User> userOpt = userRepository.findByEmail(email);
+                Long userId = jwtService.getUserId(token);
+                Optional<User> userOpt = userId != null ? userRepository.findById(userId) : userRepository.findByEmail(jwtService.getEmail(token));
                 if (userOpt.isPresent()) {
                     User user = userOpt.get();
                     List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));

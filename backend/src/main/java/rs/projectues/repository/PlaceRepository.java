@@ -5,4 +5,6 @@ import rs.projectues.entity.Place;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 	java.util.List<Place> findByNameContainingIgnoreCaseOrAddressContainingIgnoreCaseOrTypeContainingIgnoreCase(String name, String address, String type);
+	java.util.List<Place> findByNameStartingWithIgnoreCaseOrAddressStartingWithIgnoreCaseOrTypeStartingWithIgnoreCase(String name, String address, String type);
+    java.util.Optional<Place> findByName(String name);
 }

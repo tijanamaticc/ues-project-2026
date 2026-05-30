@@ -19,7 +19,8 @@ public class PlaceService {
         if (query == null || query.isBlank()) {
             return placeRepository.findAll();
         }
-        return placeRepository.findByNameContainingIgnoreCaseOrAddressContainingIgnoreCaseOrTypeContainingIgnoreCase(query, query, query);
+        // use prefix (startsWith) matching only — user expects matches that start with the query
+        return placeRepository.findByNameStartingWithIgnoreCaseOrAddressStartingWithIgnoreCaseOrTypeStartingWithIgnoreCase(query, query, query);
     }
 
     public Place create(PlaceRequest request) {

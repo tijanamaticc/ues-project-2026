@@ -43,4 +43,15 @@ public class JwtService {
     public String getEmail(String token) {
         return parseClaims(token).getSubject();
     }
+
+    public Long getUserId(String token) {
+        Object value = parseClaims(token).get("userId");
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        if (value instanceof String text && !text.isBlank()) {
+            return Long.parseLong(text);
+        }
+        return null;
+    }
 }
